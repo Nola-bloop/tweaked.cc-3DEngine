@@ -1,7 +1,5 @@
-local path = (...):match("[%a]*libf3d$").."."
-
 --depencies
---local utils = require(path.."utils")
+local Pos = require("libf3d.classes.pos")
 
 local vector = {}
 vector.__index = vector
@@ -18,8 +16,10 @@ function vector:new(x,y,z,a,b,c)
 
     instance.x = x or 0
     instance.y = y or 0
+    instance.z = z or 0
     instance.a = a or 0
     instance.b = b or 0
+    instance.c = c or 0
     return instance
 end
 
@@ -31,8 +31,6 @@ vector.__add = function (a, b)
     if not vector.isVector(a) then
         if vector.isVector(b) then
             a, b = b, a
-        else
-            error("Cannot add non-vector and non-scalar")
         end
     end
 
@@ -41,24 +39,30 @@ vector.__add = function (a, b)
         local v = vector:new(
             a.x,      --x
             a.y,      --y
+            a.z,      --z
             a.a + b.a,--a
-            a.b + b.b --b
+            a.b + b.b,--b
+            a.c + b.c --c
         )
         return v
-    elseif vector.isPos(b) then --add position to vector (don't change the vector's root, just it's composite elements)
+    elseif Pos.isPos(b) then --add position to vector (don't change the vector's root, just it's composite elements)
         local v = vector:new(
             a.x,      --x
             a.y,      --y
+            a.z,      --z
             a.a + b.x,--a
-            a.b + b.y --b
+            a.b + b.y,--b
+            a.b + b.z --c
         )
         return v
     elseif type(b) == "number" then --add scalar
         local v = vector:new(
             a.x,      --x
             a.y,      --y
+            a.z,      --z
             a.a + b,  --a
-            a.b + b   --b
+            a.b + b,  --b
+            a.c + b   --c
         )
         return v
     else
@@ -73,13 +77,11 @@ function vector.isVector(v)
     return getmetatable(v) == vector
 end
 
---- Checks if the argument is a position (has x and y number fields)
----@param c any
----@return boolean
-function vector.isPos(c)
-    return type(c) == "table" and type(c.x) == "number" and type(c.y) == "number"
+---Get a position value of the origin
+---@return Pos
+function vector:origin()
+    return Pos(self.x, self.y, self.z)
 end
-
 
 
 
