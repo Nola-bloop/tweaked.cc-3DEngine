@@ -72,6 +72,45 @@ function face:resetRoot()
     return moy
 end
 
+--- Checks if the argument is a face
+---@param v any
+---@return boolean
+function face.isVector(v)
+    return getmetatable(v) == face
+end
+
+function face:raycast(v)
+    local dist = 0
+    local res = false
+    local verts = self.vertices
+    local xyz_abc = {
+        x = "a",
+        y = "b",
+        z = "c"
+    }
+
+    for i = 1, #verts do
+        local within = {
+            x=false,
+            y=false,
+            z=false
+        }
+        
+        --check which axis has matches
+        for k, _ in pairs(within) do
+            if verts[i][xyz_abc[k]] >= 0 then
+                if v[k] <= verts[i][k]+verts[i][xyz_abc[k]] and v[k] >= verts[i][k] then
+                    within[k] = true
+                end
+            end
+        end
+    end
+    
+
+    return res, dist
+end
+
+
 setmetatable(face, {
     ---call the constructor
     __call = function(cls, ...)
